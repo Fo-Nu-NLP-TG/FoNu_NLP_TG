@@ -3,7 +3,13 @@ import torch
 import torch.nn as nn
 import pandas as pd
 import altair as alt
+import math
 from torch.nn.functional import log_softmax
+import os
+import sys
+
+# Remove the circular import
+# from encode_decode import EncodeDecode
 
 def clones(module, N):
     """Produce N identical layers."""
@@ -214,7 +220,10 @@ def example_mask():
 
 def show_example(example):
     """Display an example visualization."""
-    return example.display()
+    if callable(example):
+        return example().display()
+    else:
+        return example.display()
 
 chart = example_mask()
 chart.save("mask_visualization.html")
@@ -283,7 +292,35 @@ class Embeddings(nn.Module):
         return self.lut(x) * math.sqrt(self.d_model)
 
 
+
+
+
 ### POSITIONAL ENCODING ####
+
+def example_positional():
+    pe = PositionalEncoding(20, 0)
+    y = pe.forward(torch.zeros(1, 100, 20))
+
+    data = pd.concat(
+        [
+            pd.DataFrame(
+                {
+                    "embedding": y[0, :, dim],
+                    "dimension": dim,
+                    "position": list(range(100)),
+                }
+            )
+            for dim in [4, 5, 6, 7]
+        ]
+    )
+
+    return (
+        alt.Chart(data)
+        .mark_line()
+        .properties(width=800)
+        .encode(x="position", y="embedding", color="dimension:N")
+        .interactive()
+    )
 
 class PositionalEncoding(nn.Module):
     """Implement the PE function."""
@@ -304,34 +341,66 @@ class PositionalEncoding(nn.Module):
         x = x + self.pe[:, :x.size(1)].requires_grad_(False)
         return self.dropout(x)
 
-
-    def example_positional():
-        pe = PositionalEncoding(20, 0)
-        y = pe.forward(torch.zeros(1, 100, 20))
-
-        data = pd.concat(
-            [
-                pd.DataFrame(
-                    {
-                        "embedding": y[0, :, dim],
-                        "dimension": dim,
-                        "position": list(range(100)),
-                    }
-                )
-                for dim in [4, 5, 6, 7]
-            ]
-        )
-
-        return (
-            alt.Chart(data)
-            .mark_line()
-            .properties(width=800)
-            .encode(x="position", y="embedding", color="dimension:N")
-            .interactive()
-        )
+show_example(example_positional())
 
 
-    show_example(example_positional)
+#### FULL MODEL ####
+
+def make_model(src_vocab, tgt_vocab, N=6, d_model=512, d_ff=2048, h=8, dropout=0.1) -> "EncodeDecode":
+    """Helper: Construct a model from hyperparameters."""
+    # Import EncodeDecode here to avoid circular imports
+    from encode_decode import EncodeDecode
+    
+    c = copy.deepcopy
+    # It’s modular so attn, ff, and position are reused with deepcopy
+    # to avoid sharing weights unintentionally
+    # Sharing weights unintentionally happens when the same object (e.g., a layer or module)
+    # is reused across parts of a model without copying it, 
+    # so changes to one instance affect all others. 
+    attn = MultiHeadedAttention(h, d_model)
+    ff = PositionwiseFeedForward(d_model, d_ff, dropout)
+    position = PositionalEncoding(d_model, dropout)
+    model = EncodeDecode(
+        # A single encoder layer with multi-headed attention (attn), feed-forward network (ff), and dropout.
+        Encoder(EncoderLayer(d_model, c(attn), c(ff), dropout), N),
+        # A single decoder layer. It uses two attention mechanisms
+        Decoder(DecoderLayer(d_model, c(attn), c(attn), c(ff), dropout), N),
+        # Embeddings and positional encoding for source and target sequences.
+        nn.Sequential(Embeddings(d_model, src_vocab), c(position)),
+        nn.Sequential(Embeddings(d_model, tgt_vocab), c(position)),
+        # A linear layer (and often softmax) that maps the decoder’s d_model-sized outputs 
+        # to probabilities over the target vocabulary, predicting the next token.
+        Generator(d_model, tgt_vocab))
+    # This line runs the forward function on one batch of data to initialize the model.
+    for p in model.parameters():
+        ## INITIALIZATION ##
+        # Model initialization is setting the starting values of a neural network’s
+        # internal parameters (weights and biases) before training begins.
+        # built-in methods like Xavier or He initialization
+        if p.dim() > 1:
+            # Skips 1D parameters (e.g., biases), 
+            # focusing on weight matrices or higher-dimensional tensors.
+            # Initializes the weights of these parameters using the Xavier uniform distribution.
+            nn.init.xavier_uniform_(p)
+    # Returns the initialized model.
+    return model
+
+### SOME OTHER INITIALIZATIONS FUNCTIONS ####
+# nn.init.xavier_uniform_(tensor): Xavier with uniform distribution.
+# nn.init.xavier_normal_(tensor): Xavier with normal distribution.
+# nn.init.kaiming_uniform_(tensor): He initialization (good for ReLU).
+# nn.init.constant_(tensor, value): Set all to a constant (e.g., zeros).
+# nn.init.normal_(tensor, mean, std): Normal distribution with mean and standard deviation.
+
+
+
+# This code builds a standard Transformer (like in "attention is All You Need").
+# The encoder processes the source sequence into a rich representation using N layers of attention 
+# and feed-forward networks. 
+# The decoder generates the target sequence, attending to both its own previous outputs 
+# and the encoder’s result. Positional encoding ensures the model knows token order, 
+# and embeddings map tokens to vectors. The generator predicts the final output tokens.
+
 
 ##### PADDING #####
 ## "Hello" → [1, 0, 0] (padded to length 3). (Right Padding)

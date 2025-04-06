@@ -1,5 +1,6 @@
 import torch.nn as nn
-from model_utils import Generator, Encoder  # and LayerNorm if needed
+# Import only what you need from model_utils
+from model_utils import Generator  # Remove Encoder if not needed immediately
 
 class EncodeDecode(nn.Module):
     """EncodeDecode is a base class for encoder-decoder architectures in sequence-to-sequence models."""
