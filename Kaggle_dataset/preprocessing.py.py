@@ -85,3 +85,6 @@ def plotCorrelationMatrix(df, graphWidth):
     plt.colorbar(corrMat)
     plt.title(f'Correlation Matrix for {filename}', fontsize=15)
     plt.show()
+
+# Scatter and density plots
+def plotScatterMatrix(df, plotSize, textSize):
