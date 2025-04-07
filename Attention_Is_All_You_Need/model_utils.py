@@ -3,7 +3,13 @@ import torch
 import torch.nn as nn
 import pandas as pd
 import altair as alt
+import math
 from torch.nn.functional import log_softmax
+import os
+import sys
+
+# Remove the circular import
+# from encode_decode import EncodeDecode
 
 def clones(module, N):
     """Produce N identical layers."""
@@ -19,7 +25,7 @@ class Generator(nn.Module):
     def __init__(self, d_model, vocab):
         super(Generator, self).__init__()
         self.proj = nn.Linear(d_model, vocab) # Liner layer maps the model's hidden state to the vocabulary size.
-        # d_model: Size of the input (e.g., 512 numbers per word).
+        # d_model: Size of the input (e.g., 512 numbers per word). || Word Vector Size
         # vocab: Size of the output (e.g., 10,000 words in the vocabulary).
 
     def forward(self, x):
@@ -105,6 +111,7 @@ class EncoderLayer(nn.Module):
             """Encoder is made up of self-attn and feed forward (defined below)"""
             def __init__(self, size, self_attn, feed_forward, dropout):
                 super(EncoderLayer, self).__init__()
+                # Multi-head self-attention
                 self.self_attn = self_attn # self_attn: Self-attention mechanism.
                 # Self-Attention: Lets each word "look" at other words in the input 
                 # to understand context (e.g., "world" relates to "hello").
@@ -119,6 +126,7 @@ class EncoderLayer(nn.Module):
             def forward(self, x, mask):
                 """Follow Figure 1 (left) for connections."""
                 x = self.sublayer[0](x, lambda x: self.self_attn(x, x, x, mask)) # Self-Attention
+                # splits x into heads, computes attention and recombines.
                 return self.sublayer[1](x, self.feed_forward) # Feed Forward
         
 ###### DECODER ########### N = 6
@@ -177,6 +185,20 @@ def subsequent_mask(size):
     subsequent_mask = torch.triu(torch.ones(attn_shape), diagonal=1).type(torch.uint8)
     return subsequent_mask == 0
 
+
+### ATTENTION ###########
+def attention(query, key, value, mask=None, dropout=None):
+    """Compute 'Scaled Dot Product Attention'"""
+    d_k = query.size(-1)
+    scores = torch.matmul(query, key.transpose(-2, -1)) / math.sqrt(d_k)
+    if mask is not None:
+        scores = scores.masked_fill(mask == 0, -1e9)
+    p_attn = scores.softmax(dim=-1)
+    if dropout is not None:
+        p_attn = dropout(p_attn)
+    return torch.matmul(p_attn, value), p_attn
+
+
 def example_mask():
     """Create a visualization of the subsequent mask."""
     LS_data = pd.concat(
@@ -198,11 +220,186 @@ def example_mask():
 
 def show_example(example):
     """Display an example visualization."""
-    return example.display()
+    if callable(example):
+        return example().display()
+    else:
+        return example.display()
 
 chart = example_mask()
 chart.save("mask_visualization.html")
 print("Visualization saved to mask_visualization.html")
+
+
+### MULTI-HEAD ATTENTION #######
+
+class MultiHeadedAttention(nn.Module):
+    def __init__(self, h, d_model, dropout=0.1):
+        """Take in model size and number of heads."""
+        super(MultiHeadedAttention, self).__init__()
+        assert d_model % h == 0
+        # We assume d_v always equals d_k
+        self.d_k = d_model // h
+        self.h = h
+        self.linears = clones(nn.Linear(d_model, d_model), 4)
+        self.attn = None
+        self.dropout = nn.Dropout(p=dropout)
+
+    def forward(self, query, key, value, mask=None):
+        """Implements Figure 2"""
+        if mask is not None:
+            # Same mask applied to all h heads.
+            mask = mask.unsqueeze(1)
+        nbatches = query.size(0)
+
+        # 1) Do all the linear projections in batch from d_model => h x d_k
+        query, key, value = [l(x).view(nbatches, -1, self.h, self.d_k).transpose(1, 2)
+                             for l, x in zip(self.linears, (query, key, value))]
+        
+        # 2) Apply attention on all the projected vectors in batch.
+        x, self.attn = attention(query, key, value, mask=mask, dropout=self.dropout)
+
+        # 3) "Concat" using a view and apply a final linear.
+        x = x.transpose(1, 2).contiguous().view(nbatches, -1, self.h * self.d_k)
+
+        del query
+        del key
+        del value
+        return self.linears[-1](x)
+
+## Feed Forward Network ####
+
+class PositionwiseFeedForward(nn.Module):
+    """Implements FFN equation."""
+    def __init__(self, d_model, d_ff, dropout=0.1):
+        super(PositionwiseFeedForward, self).__init__()
+        self.w_1 = nn.Linear(d_model, d_ff)
+        self.w_2 = nn.Linear(d_ff, d_model)
+        self.dropout = nn.Dropout(dropout)
+
+    def forward(self, x):
+        return self.w_2(self.dropout(self.w_1(x).relu()))
+
+
+### EMBEDDING ####
+
+class Embeddings(nn.Module):
+    def __init__(self, d_model, vocab):
+        super(Embeddings, self).__init__()
+        self.lut = nn.Embedding(vocab, d_model)
+        self.d_model = d_model
+
+    def forward(self, x):
+        return self.lut(x) * math.sqrt(self.d_model)
+
+
+
+
+
+### POSITIONAL ENCODING ####
+
+def example_positional():
+    pe = PositionalEncoding(20, 0)
+    y = pe.forward(torch.zeros(1, 100, 20))
+
+    data = pd.concat(
+        [
+            pd.DataFrame(
+                {
+                    "embedding": y[0, :, dim],
+                    "dimension": dim,
+                    "position": list(range(100)),
+                }
+            )
+            for dim in [4, 5, 6, 7]
+        ]
+    )
+
+    return (
+        alt.Chart(data)
+        .mark_line()
+        .properties(width=800)
+        .encode(x="position", y="embedding", color="dimension:N")
+        .interactive()
+    )
+
+class PositionalEncoding(nn.Module):
+    """Implement the PE function."""
+    def __init__(self, d_model, dropout, max_len=5000):
+        super(PositionalEncoding, self).__init__()
+        self.dropout = nn.Dropout(p=dropout)
+
+        # Compute the positional encodings once in log space.
+        pe = torch.zeros(max_len, d_model)
+        position = torch.arange(0, max_len).unsqueeze(1)
+        div_term = torch.exp(torch.arange(0, d_model, 2) * -(math.log(10000.0) / d_model))
+        pe[:, 0::2] = torch.sin(position * div_term)
+        pe[:, 1::2] = torch.cos(position * div_term)
+        pe = pe.unsqueeze(0)
+        self.register_buffer('pe', pe)
+
+    def forward(self, x):
+        x = x + self.pe[:, :x.size(1)].requires_grad_(False)
+        return self.dropout(x)
+
+show_example(example_positional())
+
+
+#### FULL MODEL ####
+
+def make_model(src_vocab, tgt_vocab, N=6, d_model=512, d_ff=2048, h=8, dropout=0.1) -> "EncodeDecode":
+    """Helper: Construct a model from hyperparameters."""
+    # Import EncodeDecode here to avoid circular imports
+    from encode_decode import EncodeDecode
+    
+    c = copy.deepcopy
+    # It’s modular so attn, ff, and position are reused with deepcopy
+    # to avoid sharing weights unintentionally
+    # Sharing weights unintentionally happens when the same object (e.g., a layer or module)
+    # is reused across parts of a model without copying it, 
+    # so changes to one instance affect all others. 
+    attn = MultiHeadedAttention(h, d_model)
+    ff = PositionwiseFeedForward(d_model, d_ff, dropout)
+    position = PositionalEncoding(d_model, dropout)
+    model = EncodeDecode(
+        # A single encoder layer with multi-headed attention (attn), feed-forward network (ff), and dropout.
+        Encoder(EncoderLayer(d_model, c(attn), c(ff), dropout), N),
+        # A single decoder layer. It uses two attention mechanisms
+        Decoder(DecoderLayer(d_model, c(attn), c(attn), c(ff), dropout), N),
+        # Embeddings and positional encoding for source and target sequences.
+        nn.Sequential(Embeddings(d_model, src_vocab), c(position)),
+        nn.Sequential(Embeddings(d_model, tgt_vocab), c(position)),
+        # A linear layer (and often softmax) that maps the decoder’s d_model-sized outputs 
+        # to probabilities over the target vocabulary, predicting the next token.
+        Generator(d_model, tgt_vocab))
+    # This line runs the forward function on one batch of data to initialize the model.
+    for p in model.parameters():
+        ## INITIALIZATION ##
+        # Model initialization is setting the starting values of a neural network’s
+        # internal parameters (weights and biases) before training begins.
+        # built-in methods like Xavier or He initialization
+        if p.dim() > 1:
+            # Skips 1D parameters (e.g., biases), 
+            # focusing on weight matrices or higher-dimensional tensors.
+            # Initializes the weights of these parameters using the Xavier uniform distribution.
+            nn.init.xavier_uniform_(p)
+    # Returns the initialized model.
+    return model
+
+### SOME OTHER INITIALIZATIONS FUNCTIONS ####
+# nn.init.xavier_uniform_(tensor): Xavier with uniform distribution.
+# nn.init.xavier_normal_(tensor): Xavier with normal distribution.
+# nn.init.kaiming_uniform_(tensor): He initialization (good for ReLU).
+# nn.init.constant_(tensor, value): Set all to a constant (e.g., zeros).
+# nn.init.normal_(tensor, mean, std): Normal distribution with mean and standard deviation.
+
+
+
+# This code builds a standard Transformer (like in "attention is All You Need").
+# The encoder processes the source sequence into a rich representation using N layers of attention 
+# and feed-forward networks. 
+# The decoder generates the target sequence, attending to both its own previous outputs 
+# and the encoder’s result. Positional encoding ensures the model knows token order, 
+# and embeddings map tokens to vectors. The generator predicts the final output tokens.
 
 
 ##### PADDING #####

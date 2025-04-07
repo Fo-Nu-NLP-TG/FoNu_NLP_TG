@@ -99,6 +99,7 @@ See `requirements.txt` for the complete list.
 
 - [The Annotated Transformer](https://nlp.seas.harvard.edu/annotated-transformer/#prelims)
 ![Transformer Architecture](https://nlp.seas.harvard.edu/images/the_transformer_architecture.jpg)
+- [Transformer-XL: Attentive Language Models Beyond a Fixed-Length Context](https://arxiv.org/abs/1901.02860)
 - [Attention Is All You Need](https://arxiv.org/pdf/1706.03762)
 
 ## License
