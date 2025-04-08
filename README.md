@@ -1,6 +1,14 @@
-# Experiments-On-Transformers
+# Experiments-On-Transformers (FoNu_NLP_TG)
 
-Experimenting, exploring and fine-tuning transformers.
+FoNu_NLP_TG ("Fo Nu" means "speak" in Ewe, and TG stands for Togo) is a research project focused on experimenting, exploring, and fine-tuning transformers, with a special emphasis on applications for Togolese languages.
+
+## Project Blog
+
+We've started a blog to document our progress and share insights about transformer models and NLP. The blog is available in multiple formats:
+
+- [GitHub Pages](https://lemniscate-world.github.io/FoNu_NLP_TG/) (automatically updated)
+- [Source files](blog/) in the repository
+- Selected posts on [Medium](https://medium.com/) (coming soon)
 
 ## Transformer Architecture Standard
 
@@ -41,14 +49,23 @@ python -m spacy download en_core_web_sm
 ## Project Structure
 
 - `Attention_Is_All_You_Need/`: Implementation based on the original paper
-  - `Harvard_Annotated_Transformers.py`: Transformer implementation following Harvard NLP's annotated guide
   - `model_utils.py`: Core transformer components (LayerNorm, Encoder, Decoder, etc.)
   - `encode_decode.py`: The EncodeDecode model that combines encoder and decoder
+  - `inference.py`: Inference script for testing the transformer model
+  - `training.py`: Training script for the transformer model
   - `visualization.py`: Utilities for visualizing transformer components
   - `transformer_explanation.ipynb`: Jupyter notebook with visualizations and explanations
 - `Tensorflow_Ytb_Channel/`: TensorFlow-based implementations
 - `Kaggle_dataset/`: Scripts for working with datasets from Kaggle
 - `Ewe_News_Dataset/`: Processing scripts for the Ewe News Dataset
+- `SV(Semantics_Visualizer)/`: Tools for visualizing word embeddings
+  - `SV.py`: Local implementation of word embedding visualization
+  - `kaggle_semantics_visualizer.ipynb`: Kaggle notebook implementation that can be run in the cloud
+  - Link to Kaggle notebook: [https://www.kaggle.com/kuroio/semantics-visualizer](https://www.kaggle.com/kuroio/semantics-visualizer)
+- `blog/`: Project blog documenting our progress and insights
+  - `index.md`: Main blog index page
+  - `first_post.md`: Introduction to the project and transformer models
+  - `images/`: Directory containing images for blog posts
 
 ## Usage Examples
 
