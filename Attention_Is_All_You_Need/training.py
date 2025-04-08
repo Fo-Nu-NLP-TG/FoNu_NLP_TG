@@ -88,3 +88,10 @@ class TrainState:
         del loss
         del loss_node
     return total_loss / total_tokens, train_state
+
+### RATE #######
+
+def rate(step, model_size, factor, warmup):
+    """ we have to default the step to  for LambdaLR function 
+    to avoid zero raising to negative power."""
+    
