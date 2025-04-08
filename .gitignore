@@ -2,6 +2,8 @@
 SV(Semantics_Visualizer)/GoogleNews-vectors-negative300.bin
 
 # Datasets
+datasets/
+Kaggle_dataset/
 *.csv
 *.tsv
 *.json
