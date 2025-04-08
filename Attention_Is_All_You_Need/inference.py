@@ -1,31 +1,26 @@
+
 import torch
-import sys
-import os
-import importlib.util
-
-# Get the absolute path to the model_utils.py file
-current_dir = os.path.dirname(os.path.abspath(__file__))
-module_path = os.path.join(current_dir, 'model_utils.py')
-
-# Import the module dynamically
-spec = importlib.util.spec_from_file_location('model_utils', module_path)
-model_utils = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(model_utils)
-
-# Get the required functions from the module
-subsequent_mask = model_utils.subsequent_mask
-show_example = model_utils.show_example
-make_model = model_utils.make_model
+from model_utils import subsequent_mask, show_example, make_model
 
 def inference_test():
-    test_model = make_model(11, 11, 2)
-    test_model.eval()
-    src = torch.LongTensor([[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]])
-    src_mask = torch.ones(1, 1, 10)
+    test_model = make_model(11, 11, 2) # Vocab size 11, 2 layers
+    # Input: A sequence of 10 tokens (1 to 10), 
+    # representing a "sentence" with vocab size 11 (0 to 10).
+    test_model.eval() # Evaluation mode (no dropout)
+    src = torch.LongTensor([[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]]) # Input sequence
+    # Allows the encoder to see all 10 positions (no padding).
+    src_mask = torch.ones(1, 1, 10) # No padding, all positions visible
 
+    # Memory: The encoder’s output, a contextual representation of the input.
     memory = test_model.encode(src, src_mask)
-    ys = torch.zeros(1, 1).type_as(src)
+    # Passes src through src_embed (embedding + positional encoding)
+    # Runs it through 2 encoder layers (self-attention + feed-forward).
 
+
+    # Decoder: Generates the output sequence one token at a time.
+    # Starts with a single token (0) and builds the output step by step.
+    ys = torch.zeros(1, 1).type_as(src)
+    # Goal: Generate a 10-token output sequence, one token at a time.
     for i in range(9):
         out = test_model.decode(
             memory, src_mask, ys, subsequent_mask(ys.size(1)).type_as(src.data)
