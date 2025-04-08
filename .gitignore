@@ -35,6 +35,8 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
+*.ipynb_checkpoints
+*.ipynb
 
 # Virtual Environment
 venv/
