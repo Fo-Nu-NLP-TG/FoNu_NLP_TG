@@ -49,6 +49,10 @@ python -m spacy download en_core_web_sm
 - `Tensorflow_Ytb_Channel/`: TensorFlow-based implementations
 - `Kaggle_dataset/`: Scripts for working with datasets from Kaggle
 - `Ewe_News_Dataset/`: Processing scripts for the Ewe News Dataset
+- `SV(Semantics_Visualizer)/`: Tools for visualizing word embeddings
+  - `SV.py`: Local implementation of word embedding visualization
+  - `kaggle_semantics_visualizer.ipynb`: Kaggle notebook implementation that can be run in the cloud
+  - Link to Kaggle notebook: [https://www.kaggle.com/kuroio/semantics-visualizer](https://www.kaggle.com/kuroio/semantics-visualizer) 
 
 ## Usage Examples
 
