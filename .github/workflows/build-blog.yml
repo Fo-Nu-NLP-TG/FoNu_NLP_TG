@@ -1,0 +1,37 @@
+name: Build Blog
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'blog/**'
+      - '.github/workflows/build-blog.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.8'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install markdown
+    
+    - name: Build blog for GitHub Pages
+      run: |
+        cd blog
+        python convert.py --github-pages
+    
+    - name: Commit and push if changed
+      run: |
+        git config --global user.name 'GitHub Actions'
+        git config --global user.email 'actions@github.com'
+        git add docs
+        git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update blog" && git push)

@@ -1,0 +1,143 @@
+/* Basic styling for the blog */
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+    color: #2c3e50;
+}
+
+h1 {
+    font-size: 2.2em;
+    border-bottom: 2px solid #eaecef;
+    padding-bottom: 0.3em;
+}
+
+h2 {
+    font-size: 1.8em;
+    border-bottom: 1px solid #eaecef;
+    padding-bottom: 0.3em;
+}
+
+p {
+    margin-bottom: 1.5em;
+}
+
+a {
+    color: #0366d6;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+code {
+    background-color: #f6f8fa;
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+pre {
+    background-color: #f6f8fa;
+    padding: 16px;
+    border-radius: 3px;
+    overflow: auto;
+}
+
+pre code {
+    background-color: transparent;
+    padding: 0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5em auto;
+    border-radius: 5px;
+}
+
+blockquote {
+    border-left: 4px solid #dfe2e5;
+    padding-left: 1em;
+    color: #6a737d;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 1.5em;
+}
+
+table, th, td {
+    border: 1px solid #dfe2e5;
+}
+
+th, td {
+    padding: 8px 12px;
+}
+
+th {
+    background-color: #f6f8fa;
+}
+
+/* Post metadata */
+.post-meta {
+    color: #6a737d;
+    font-size: 0.9em;
+    margin-bottom: 2em;
+}
+
+/* Navigation */
+.nav {
+    margin-bottom: 2em;
+    padding-bottom: 1em;
+    border-bottom: 1px solid #eaecef;
+}
+
+.nav a {
+    margin-right: 1em;
+}
+
+/* Footer */
+.footer {
+    margin-top: 3em;
+    padding-top: 1em;
+    border-top: 1px solid #eaecef;
+    color: #6a737d;
+    font-size: 0.9em;
+}
+
+/* Code highlighting */
+.highlight {
+    background-color: #f6f8fa;
+    border-radius: 3px;
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+    
+    h1 {
+        font-size: 1.8em;
+    }
+    
+    h2 {
+        font-size: 1.5em;
+    }
+}
