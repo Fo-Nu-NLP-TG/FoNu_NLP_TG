@@ -49,9 +49,10 @@ python -m spacy download en_core_web_sm
 ## Project Structure
 
 - `Attention_Is_All_You_Need/`: Implementation based on the original paper
-  - `Harvard_Annotated_Transformers.py`: Transformer implementation following Harvard NLP's annotated guide
   - `model_utils.py`: Core transformer components (LayerNorm, Encoder, Decoder, etc.)
   - `encode_decode.py`: The EncodeDecode model that combines encoder and decoder
+  - `inference.py`: Inference script for testing the transformer model
+  - `training.py`: Training script for the transformer model
   - `visualization.py`: Utilities for visualizing transformer components
   - `transformer_explanation.ipynb`: Jupyter notebook with visualizations and explanations
 - `Tensorflow_Ytb_Channel/`: TensorFlow-based implementations
