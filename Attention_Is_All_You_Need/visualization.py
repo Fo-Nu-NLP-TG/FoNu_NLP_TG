@@ -9,6 +9,10 @@ import pandas as pd
 import altair as alt
 import torch
 from typing import Optional
+from training import rate
+from model_utils import LabelSmoothing, LambdaLR
+from model_utils import show_example
+from training import TrainState
 
 def subsequent_mask(size: int) -> torch.Tensor:
     """Create a mask to hide future positions in the sequence.
@@ -132,7 +136,84 @@ def example_learning_schedule():
     )
 
 
+# Example of label smoothing.
+
+
+def example_label_smoothing():
+    crit = LabelSmoothing(5, 0, 0.4)
+    predict = torch.FloatTensor(
+        [
+            [0, 0.2, 0.7, 0.1, 0],
+            [0, 0.2, 0.7, 0.1, 0],
+            [0, 0.2, 0.7, 0.1, 0],
+            [0, 0.2, 0.7, 0.1, 0],
+            [0, 0.2, 0.7, 0.1, 0],
+        ]
+    )
+    crit(x=predict.log(), target=torch.LongTensor([2, 1, 0, 3, 3]))
+    LS_data = pd.concat(
+        [
+            pd.DataFrame(
+                {
+                    "target distribution": crit.true_dist[x, y].flatten(),
+                    "columns": y,
+                    "rows": x,
+                }
+            )
+            for y in range(5)
+            for x in range(5)
+        ]
+    )
+
+    return (
+        alt.Chart(LS_data)
+        .mark_rect(color="Blue", opacity=1)
+        .properties(height=200, width=200)
+        .encode(
+            alt.X("columns:O", title=None),
+            alt.Y("rows:O", title=None),
+            alt.Color(
+                "target distribution:Q", scale=alt.Scale(scheme="viridis")
+            ),
+        )
+        .interactive()
+    )
+
+
+show_example(example_label_smoothing)
+
+
 example_learning_schedule()
+
+def loss(x, crit):
+    d = x + 3 * 1
+    predict = torch.FloatTensor([[0, x / d, 1 / d, 1 / d, 1 / d]])
+    return crit(predict.log(), torch.LongTensor([1])).data
+
+
+def penalization_visualization():
+    crit = LabelSmoothing(5, 0, 0.1)
+    loss_data = pd.DataFrame(
+        {
+            "Loss": [loss(x, crit) for x in range(1, 100)],
+            "Steps": list(range(99)),
+        }
+    ).astype("float")
+
+    return (
+        alt.Chart(loss_data)
+        .mark_line()
+        .properties(width=350)
+        .encode(
+            x="Steps",
+            y="Loss",
+        )
+        .interactive()
+    )
+
+
+show_example(penalization_visualization)
+
 
 if __name__ == "__main__":
     # Example usage
