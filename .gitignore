@@ -1,5 +1,11 @@
 # Model files
 SV(Semantics_Visualizer)/GoogleNews-vectors-negative300.bin
+*.bin
+*.pt
+*.pth
+*.ckpt
+*.model
+*.h5
 
 # Datasets
 datasets/
@@ -19,6 +25,22 @@ Kaggle_dataset/*.tar.gz
 
 # Generated blog files
 blog/*.html
+blog/*_medium.md
+
+# Tokenizers
+*_tokenizer/
+*_tokenizer.json
+*_hf_tokenizer/
+*.model
+*.vocab
+
+# Logs and outputs
+logs/
+runs/
+outputs/
+wandb/
+tensorboard/
+*.log
 
 # Python
 __pycache__/

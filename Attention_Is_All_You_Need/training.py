@@ -199,3 +199,56 @@ true_dist = [[0, 0.05, 0.9, 0.05]].
 Compute KLDivLoss(x, true_dist) (sum of divergences across classes).
 
 """
+
+### EARLY STOPPING ####
+
+# Early stopping is a technique used in machine learning 
+# (especially when training neural networks) to prevent overfitting.
+
+class EarlyStopping:
+    """Early stopping to prevent overfitting"""
+    
+    def __init__(self, patience=5, min_delta=0):
+        """
+        Args:
+            patience: Number of epochs to wait after min has been hit
+            min_delta: Minimum change to qualify as improvement
+        """
+        self.patience = patience
+        self.min_delta = min_delta
+        self.counter = 0
+        self.best_loss = None
+        self.early_stop = False
+    
+    def __call__(self, val_loss):
+        if self.best_loss is None:
+            self.best_loss = val_loss
+        elif val_loss > self.best_loss - self.min_delta:
+            self.counter += 1
+            if self.counter >= self.patience:
+                self.early_stop = True
+        else:
+            self.best_loss = val_loss
+            self.counter = 0
+"""
+Example Scenario:
+Epoch 1: val_loss = 0.5
+best_loss = 0.5, counter = 0
+
+Epoch 2: val_loss = 0.48
+Improvement! best_loss = 0.48, counter = 0
+
+Epoch 3: val_loss = 0.47
+Improvement! best_loss = 0.47, counter = 0
+
+Epoch 4: val_loss = 0.48
+No improvement (0.48 > 0.47 - 0.01), counter = 1
+
+Epoch 5: val_loss = 0.49
+No improvement, counter = 2
+
+Epoch 6: val_loss = 0.50
+No improvement, counter = 3
+
+counter >= patience (3), so early_stop = True
+"""

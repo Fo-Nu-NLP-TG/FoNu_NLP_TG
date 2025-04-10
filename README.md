@@ -28,6 +28,17 @@ Customization: You can adjust N, hidden size, or attention heads, but the struct
 - Training: The model learns these relationships from data (e.g., "Hello" often precedes "world").
 - Multi-Head Attention: Looks at multiple relationships at once (e.g., syntax, meaning).
 
+## Ewe-English Translation
+
+This project has a special focus on Ewe-English machine translation. We're exploring various approaches:
+
+- Fine-tuning pre-trained multilingual models (mBART, mT5)
+- Training custom transformer architectures
+- Implementing hybrid approaches combining neural and rule-based methods
+- Applying transfer learning from related languages
+
+See our [translation approaches document](ewe_english_translation_approaches.md) for detailed information.
+
 ## Installation
 
 ```bash
@@ -66,6 +77,10 @@ python -m spacy download en_core_web_sm
   - `index.md`: Main blog index page
   - `first_post.md`: Introduction to the project and transformer models
   - `images/`: Directory containing images for blog posts
+- `data_processing/`: Tools for data preparation and tokenization
+  - `tokenizer_trainer.py`: Script for training tokenizers on Ewe and English text
+  - `data_preprocessing_guide.md`: Guide for preprocessing text data
+  - `dataset.py`: Dataset classes for loading and batching data
 
 ## Usage Examples
 
@@ -89,6 +104,22 @@ model = EncodeDecode(
 output = model(src, tgt, src_mask, tgt_mask)
 ```
 
+### Training Tokenizers
+
+```python
+from data_processing.tokenizer_trainer import TokenizerTrainer
+
+# Initialize the trainer
+trainer = TokenizerTrainer(data_dir="path/to/data")
+
+# Train tokenizers for all available languages
+tokenizers = trainer.train_all_tokenizers(method='sentencepiece', vocab_size=8000)
+
+# Use the tokenizers
+ewe_tokenizer = tokenizers['ewe']
+english_tokenizer = tokenizers['english']
+```
+
 ### Visualizing Attention Masks
 
 ```python
@@ -109,6 +140,10 @@ This project requires Python 3.8+ and the following packages:
 - spacy>=3.6.0
 - matplotlib>=3.5.0
 - jupyter>=1.0.0
+- sentencepiece>=0.1.99
+- transformers>=4.30.0
+- datasets>=2.14.0
+- sacrebleu>=2.3.0
 
 See `requirements.txt` for the complete list.
 
@@ -118,6 +153,16 @@ See `requirements.txt` for the complete list.
 ![Transformer Architecture](https://nlp.seas.harvard.edu/images/the_transformer_architecture.jpg)
 - [Transformer-XL: Attentive Language Models Beyond a Fixed-Length Context](https://arxiv.org/abs/1901.02860)
 - [Attention Is All You Need](https://arxiv.org/pdf/1706.03762)
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 

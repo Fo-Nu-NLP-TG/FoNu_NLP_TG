@@ -24,8 +24,10 @@ class MultiSourceDataLoader:
     def load_kaggle_dataset(self):
         """Load the Ewe-English bilingual pairs from Kaggle"""
         try:
-            path = kagglehub.dataset_download("tchaye59/eweenglish-bilingual-pairs", 
-                                             dest_path=self.kaggle_dir)
+            # The kagglehub.dataset_download() doesn't accept dest_path parameter
+            # Let's use the correct syntax
+            path = kagglehub.dataset_download("tchaye59/eweenglish-bilingual-pairs")
+            
             print(f"Kaggle dataset downloaded to: {path}")
             
             # Load the dataset
@@ -218,3 +220,18 @@ class MultiSourceDataLoader:
                         f.write(str(text) + "\n")
         
         return output_dir
+
+if __name__ == "__main__":
+    # Create an instance of the data loader
+    loader = MultiSourceDataLoader()
+    
+    # Combine datasets from all sources
+    print("Combining datasets...")
+    combined_data = loader.combine_datasets()
+    
+    # Save the processed data
+    if combined_data:
+        output_dir = loader.save_processed_data(combined_data)
+        print(f"All data processing complete. Files saved to: {output_dir}")
+    else:
+        print("No data was combined. Please check the dataset sources.")
