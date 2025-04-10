@@ -1,6 +1,25 @@
 import torch.nn as nn
-# Import only what you need from model_utils
-from model_utils import Generator  # Remove Encoder if not needed immediately
+import os
+import sys
+
+# Try different import approaches to handle both local and Kaggle environments
+try:
+    # Try direct import first
+    from model_utils import Generator
+except ImportError:
+    # If that fails, try with the full path
+    try:
+        from Attention_Is_All_You_Need.model_utils import Generator
+    except ImportError:
+        # If that also fails, try to find the file and add its path
+        import glob
+        model_utils_files = glob.glob("**/model_utils.py", recursive=True)
+        if model_utils_files:
+            model_dir = os.path.dirname(model_utils_files[0])
+            sys.path.append(model_dir)
+            from model_utils import Generator
+        else:
+            raise ImportError("Could not find model_utils.py")
 
 class EncodeDecode(nn.Module):
     """EncodeDecode is a base class for encoder-decoder architectures in sequence-to-sequence models."""
