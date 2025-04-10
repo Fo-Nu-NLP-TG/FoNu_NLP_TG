@@ -49,15 +49,18 @@ class TranslationDataset(Dataset):
             # SentencePiece tokenizer
             src_ids = self.src_tokenizer.encode(src_text, out_type=int)
             # Add BOS/EOS if not already added by the tokenizer
-            if src_ids[0] != 2:  # BOS id
+            if len(src_ids) > 0 and src_ids[0] != 2:  # BOS id
                 src_ids = [2] + src_ids
-            if src_ids[-1] != 3:  # EOS id
+            if len(src_ids) > 0 and src_ids[-1] != 3:  # EOS id
                 src_ids = src_ids + [3]
+            # Ensure all IDs are within vocabulary bounds
+            src_vocab_size = self.src_tokenizer.get_piece_size()
+            src_ids = [min(id, src_vocab_size-1) for id in src_ids]
         else:
             # Hugging Face tokenizer
             src_encoding = self.src_tokenizer.encode(src_text)
             src_ids = src_encoding.ids
-            
+        
         # Tokenize target text
         if isinstance(self.tgt_tokenizer, spm.SentencePieceProcessor):
             # SentencePiece tokenizer
@@ -66,9 +69,9 @@ class TranslationDataset(Dataset):
             tgt_vocab_size = self.tgt_tokenizer.get_piece_size()
             tgt_ids = [min(id, tgt_vocab_size-1) for id in tgt_ids]
             # Add BOS/EOS if not already added by the tokenizer
-            if tgt_ids[0] != 2:  # BOS id
+            if len(tgt_ids) > 0 and tgt_ids[0] != 2:  # BOS id
                 tgt_ids = [2] + tgt_ids
-            if tgt_ids[-1] != 3:  # EOS id
+            if len(tgt_ids) > 0 and tgt_ids[-1] != 3:  # EOS id
                 tgt_ids = tgt_ids + [3]
         else:
             # Hugging Face tokenizer
@@ -77,7 +80,13 @@ class TranslationDataset(Dataset):
             # Ensure all IDs are within vocabulary bounds
             tgt_vocab_size = len(self.tgt_tokenizer)
             tgt_ids = [min(id, tgt_vocab_size-1) for id in tgt_ids]
-            
+        
+        # Handle empty sequences
+        if len(src_ids) == 0:
+            src_ids = [2, 3]  # BOS, EOS
+        if len(tgt_ids) == 0:
+            tgt_ids = [2, 3]  # BOS, EOS
+        
         # Truncate sequences if they exceed max_len
         src_ids = src_ids[:self.max_len]
         tgt_ids = tgt_ids[:self.max_len]

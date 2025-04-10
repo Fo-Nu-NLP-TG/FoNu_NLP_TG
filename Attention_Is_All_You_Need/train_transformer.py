@@ -41,7 +41,7 @@ def train_epoch(model, dataloader, optimizer, criterion, device, tgt_vocab_size)
     model.train()
     total_loss = 0
     
-    for batch in dataloader:
+    for batch_idx, batch in enumerate(dataloader):
         src = batch["source"].to(device)
         tgt = batch["target"].to(device)
         
@@ -62,18 +62,28 @@ def train_epoch(model, dataloader, optimizer, criterion, device, tgt_vocab_size)
         # Add debug info to find problematic indices
         target_flat = tgt[:, 1:].contiguous().view(-1)
         max_target_idx = target_flat.max().item()
-        if max_target_idx >= tgt_vocab_size:
-            print(f"Warning: Target index {max_target_idx} exceeds vocabulary size {tgt_vocab_size}")
-            # You can also print the problematic sentence for debugging
-            problematic_indices = (target_flat >= tgt_vocab_size).nonzero().squeeze().tolist()
-            if not isinstance(problematic_indices, list):
-                problematic_indices = [problematic_indices]
-            for idx in problematic_indices[:5]:  # Print first 5 problematic indices
-                batch_idx = idx // (tgt.size(1) - 1)
-                if batch_idx < len(batch["target_text"]):
-                    print(f"Problematic text: {batch['target_text'][batch_idx]}")
         
-        # Ensure target indices are within bounds
+        # Print more detailed debugging information
+        if batch_idx == 0 or max_target_idx >= tgt_vocab_size:
+            print(f"Batch {batch_idx}: Max target index: {max_target_idx}, Vocab size: {tgt_vocab_size}")
+            
+            if max_target_idx >= tgt_vocab_size:
+                print(f"WARNING: Target index {max_target_idx} exceeds vocabulary size {tgt_vocab_size}")
+                # Find all problematic indices
+                problematic_indices = (target_flat >= tgt_vocab_size).nonzero().squeeze().tolist()
+                if not isinstance(problematic_indices, list):
+                    problematic_indices = [problematic_indices]
+                
+                # Print some of the problematic examples
+                for idx in problematic_indices[:3]:  # Print first 3 problematic indices
+                    batch_idx = idx // (tgt.size(1) - 1)
+                    seq_idx = idx % (tgt.size(1) - 1)
+                    if batch_idx < len(batch["target_text"]):
+                        print(f"Problematic text: {batch['target_text'][batch_idx]}")
+                        print(f"Problematic index position: {seq_idx}")
+                        print(f"Token ID: {target_flat[idx].item()}")
+        
+        # Ensure target indices are within bounds by clamping
         target_flat = torch.clamp(target_flat, 0, tgt_vocab_size - 1)
         
         # Use the clamped target for loss calculation
@@ -183,9 +193,9 @@ def main():
         src_vocab_size = len(src_tokenizer)
         tgt_vocab_size = len(tgt_tokenizer)
     
-    # Make sure the pad_token_id is correctly set
-    pad_token_id = 0  # This should match your tokenizer's pad token ID
-
+    print(f"Source vocabulary size: {src_vocab_size}")
+    print(f"Target vocabulary size: {tgt_vocab_size}")
+    
     # Create model
     model = make_model(
         src_vocab_size=src_vocab_size,
@@ -196,11 +206,13 @@ def main():
         h=args.heads,
         dropout=args.dropout
     )
-    model.to(device)
     
-    # Define optimizer and loss function
+    # Move model to device
+    model = model.to(device)
+    
+    # Define loss function and optimizer
+    criterion = nn.CrossEntropyLoss(ignore_index=0)  # Ignore padding index (0)
     optimizer = optim.Adam(model.parameters(), lr=args.lr, betas=(0.9, 0.98), eps=1e-9)
-    criterion = nn.CrossEntropyLoss(ignore_index=pad_token_id)  # Ignore padding index
     
     # Training loop
     for epoch in range(args.epochs):
