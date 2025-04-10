@@ -1,0 +1,17 @@
+# Set Git LFS for large files
+*.csv filter=lfs diff=lfs merge=lfs -text
+data/processed/*.csv filter=lfs diff=lfs merge=lfs -text
+data/processed/clean_*.csv filter=lfs diff=lfs merge=lfs -text
+data/processed/*_train.csv filter=lfs diff=lfs merge=lfs -text
+data/processed/*_val.csv filter=lfs diff=lfs merge=lfs -text
+data/processed/*_test.csv filter=lfs diff=lfs merge=lfs -text
+
+# Set Git LFS for other large file types
+*.bin filter=lfs diff=lfs merge=lfs -text
+*.pt filter=lfs diff=lfs merge=lfs -text
+*.pth filter=lfs diff=lfs merge=lfs -text
+*.ckpt filter=lfs diff=lfs merge=lfs -text
+*.model filter=lfs diff=lfs merge=lfs -text
+*.h5 filter=lfs diff=lfs merge=lfs -text
+*.zip filter=lfs diff=lfs merge=lfs -text
+*.tar.gz filter=lfs diff=lfs merge=lfs -text

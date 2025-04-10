@@ -16,12 +16,21 @@ Kaggle_dataset/*.json
 Kaggle_dataset/*.jsonl
 Kaggle_dataset/*.zip
 Kaggle_dataset/*.tar.gz
+
+# Ignore all data files
 *.csv
 *.tsv
 *.json
 *.jsonl
 *.zip
 *.tar.gz
+
+# Specifically ignore large data files
+data/processed/*.csv
+data/processed/clean_*.csv
+data/processed/*_train.csv
+data/processed/*_val.csv
+data/processed/*_test.csv
 
 # Generated blog files
 blog/*.html
