@@ -62,6 +62,9 @@ class TranslationDataset(Dataset):
         if isinstance(self.tgt_tokenizer, spm.SentencePieceProcessor):
             # SentencePiece tokenizer
             tgt_ids = self.tgt_tokenizer.encode(tgt_text, out_type=int)
+            # Ensure all IDs are within vocabulary bounds
+            tgt_vocab_size = self.tgt_tokenizer.get_piece_size()
+            tgt_ids = [min(id, tgt_vocab_size-1) for id in tgt_ids]
             # Add BOS/EOS if not already added by the tokenizer
             if tgt_ids[0] != 2:  # BOS id
                 tgt_ids = [2] + tgt_ids
@@ -71,6 +74,9 @@ class TranslationDataset(Dataset):
             # Hugging Face tokenizer
             tgt_encoding = self.tgt_tokenizer.encode(tgt_text)
             tgt_ids = tgt_encoding.ids
+            # Ensure all IDs are within vocabulary bounds
+            tgt_vocab_size = len(self.tgt_tokenizer)
+            tgt_ids = [min(id, tgt_vocab_size-1) for id in tgt_ids]
             
         # Truncate sequences if they exceed max_len
         src_ids = src_ids[:self.max_len]

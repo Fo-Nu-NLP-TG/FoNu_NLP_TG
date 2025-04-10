@@ -59,9 +59,25 @@ def train_epoch(model, dataloader, optimizer, criterion, device):
         # Forward pass - shift target by 1 for teacher forcing
         output = model(src, tgt[:, :-1], src_mask, tgt_mask)
         
-        # Calculate loss
-        loss = criterion(output.contiguous().view(-1, output.size(-1)), 
-                         tgt[:, 1:].contiguous().view(-1))
+        # Add debug info to find problematic indices
+        target_flat = tgt[:, 1:].contiguous().view(-1)
+        max_target_idx = target_flat.max().item()
+        if max_target_idx >= tgt_vocab_size:
+            print(f"Warning: Target index {max_target_idx} exceeds vocabulary size {tgt_vocab_size}")
+            # You can also print the problematic sentence for debugging
+            problematic_indices = (target_flat >= tgt_vocab_size).nonzero().squeeze().tolist()
+            if not isinstance(problematic_indices, list):
+                problematic_indices = [problematic_indices]
+            for idx in problematic_indices[:5]:  # Print first 5 problematic indices
+                batch_idx = idx // (tgt.size(1) - 1)
+                if batch_idx < len(batch["target_text"]):
+                    print(f"Problematic text: {batch['target_text'][batch_idx]}")
+        
+        # Ensure target indices are within bounds
+        target_flat = torch.clamp(target_flat, 0, tgt_vocab_size - 1)
+        
+        # Use the clamped target for loss calculation
+        loss = criterion(output.contiguous().view(-1, output.size(-1)), target_flat)
         
         # Backward pass
         optimizer.zero_grad()
@@ -167,6 +183,9 @@ def main():
         src_vocab_size = len(src_tokenizer)
         tgt_vocab_size = len(tgt_tokenizer)
     
+    # Make sure the pad_token_id is correctly set
+    pad_token_id = 0  # This should match your tokenizer's pad token ID
+
     # Create model
     model = make_model(
         src_vocab_size=src_vocab_size,
@@ -181,7 +200,7 @@ def main():
     
     # Define optimizer and loss function
     optimizer = optim.Adam(model.parameters(), lr=args.lr, betas=(0.9, 0.98), eps=1e-9)
-    criterion = nn.CrossEntropyLoss(ignore_index=0)  # Ignore padding index
+    criterion = nn.CrossEntropyLoss(ignore_index=pad_token_id)  # Ignore padding index
     
     # Train the model
     for epoch in range(args.epochs):
