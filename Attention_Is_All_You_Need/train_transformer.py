@@ -21,6 +21,9 @@ def make_model(src_vocab_size, tgt_vocab_size, N=6, d_model=512, d_ff=2048, h=8,
     ff = PositionwiseFeedForward(d_model, d_ff, dropout)
     position = PositionalEncoding(d_model, dropout)
     
+    # Print vocabulary sizes for debugging
+    print(f"Creating model with src_vocab_size={src_vocab_size}, tgt_vocab_size={tgt_vocab_size}")
+    
     model = EncodeDecode(
         Encoder(EncoderLayer(d_model, c(attn), c(ff), dropout), N),
         Decoder(DecoderLayer(d_model, c(attn), c(attn), c(ff), dropout), N),
@@ -59,6 +62,12 @@ def train_epoch(model, dataloader, optimizer, criterion, device, tgt_vocab_size)
         # Forward pass - shift target by 1 for teacher forcing
         output = model(src, tgt[:, :-1], src_mask, tgt_mask)
         
+        # Debug output dimensions
+        if batch_idx == 0:
+            print(f"Output shape: {output.shape}, Output size(-1): {output.size(-1)}")
+            print(f"Target shape: {tgt[:, 1:].shape}")
+            print(f"Target flat shape: {tgt[:, 1:].contiguous().view(-1).shape}")
+        
         # Add debug info to find problematic indices
         target_flat = tgt[:, 1:].contiguous().view(-1)
         max_target_idx = target_flat.max().item()
@@ -86,8 +95,36 @@ def train_epoch(model, dataloader, optimizer, criterion, device, tgt_vocab_size)
         # Ensure target indices are within bounds by clamping
         target_flat = torch.clamp(target_flat, 0, tgt_vocab_size - 1)
         
+        # Check output dimensions match expected
+        if output.size(-1) != tgt_vocab_size:
+            print(f"ERROR: Output dimension {output.size(-1)} doesn't match target vocab size {tgt_vocab_size}")
+            # Adjust output if needed
+            if output.size(-1) < tgt_vocab_size:
+                # Pad output with zeros to match target vocab size
+                padding = torch.zeros(output.size(0), output.size(1), tgt_vocab_size - output.size(-1), 
+                                     device=output.device)
+                output = torch.cat([output, padding], dim=-1)
+                print(f"Padded output to shape: {output.shape}")
+        
         # Use the clamped target for loss calculation
-        loss = criterion(output.contiguous().view(-1, output.size(-1)), target_flat)
+        try:
+            loss = criterion(output.contiguous().view(-1, output.size(-1)), target_flat)
+        except IndexError as e:
+            print(f"IndexError: {e}")
+            print(f"Output shape: {output.shape}, Target max: {target_flat.max().item()}")
+            # Find the problematic indices
+            for i in range(len(target_flat)):
+                if target_flat[i].item() >= output.size(-1):
+                    print(f"Problem at index {i}: value {target_flat[i].item()} >= {output.size(-1)}")
+                    if i < 10:  # Only print first few
+                        batch_pos = i // (tgt.size(1) - 1)
+                        seq_pos = i % (tgt.size(1) - 1)
+                        print(f"  From batch item {batch_pos}, sequence position {seq_pos}")
+                        if batch_pos < len(batch["target_text"]):
+                            print(f"  Text: {batch['target_text'][batch_pos]}")
+            # Try to recover by further clamping
+            target_flat = torch.clamp(target_flat, 0, output.size(-1) - 1)
+            loss = criterion(output.contiguous().view(-1, output.size(-1)), target_flat)
         
         # Backward pass
         optimizer.zero_grad()
@@ -196,7 +233,7 @@ def main():
     print(f"Source vocabulary size: {src_vocab_size}")
     print(f"Target vocabulary size: {tgt_vocab_size}")
     
-    # Create model
+    # Create model with explicit vocabulary sizes
     model = make_model(
         src_vocab_size=src_vocab_size,
         tgt_vocab_size=tgt_vocab_size,
@@ -206,6 +243,15 @@ def main():
         h=args.heads,
         dropout=args.dropout
     )
+    
+    # Check Generator output dimension
+    if hasattr(model, 'generator') and hasattr(model.generator, 'proj'):
+        print(f"Generator output dimension: {model.generator.proj.out_features}")
+        if model.generator.proj.out_features != tgt_vocab_size:
+            print(f"WARNING: Generator output dimension doesn't match target vocabulary size!")
+            # Try to fix it
+            model.generator.proj = nn.Linear(model.generator.proj.in_features, tgt_vocab_size)
+            print(f"Fixed Generator output dimension to: {model.generator.proj.out_features}")
     
     # Move model to device
     model = model.to(device)
