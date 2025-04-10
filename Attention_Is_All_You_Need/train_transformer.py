@@ -12,7 +12,45 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from data_processing.load_tokenizers import load_sentencepiece_tokenizer, load_huggingface_tokenizer, create_translation_dataset
 from model_utils import Generator, Encoder, Decoder, EncoderLayer, DecoderLayer, MultiHeadedAttention, PositionwiseFeedForward, PositionalEncoding, Embeddings, subsequent_mask
-from encode_decode import EncodeDecode
+class EncodeDecode(nn.Module):
+    """Standard Encoder-Decoder architecture"""
+    
+    def __init__(self, encoder, decoder, src_embed, tgt_embed, generator):
+        super(EncodeDecode, self).__init__()
+        self.encoder = encoder
+        self.decoder = decoder
+        self.src_embed = src_embed
+        self.tgt_embed = tgt_embed
+        self.generator = generator
+        
+    def forward(self, src, tgt, src_mask, tgt_mask):
+        """Take in and process masked src and target sequences"""
+        memory = self.encode(src, src_mask)
+        decoder_output = self.decode(memory, src_mask, tgt, tgt_mask)
+        # Apply the generator to get logits over vocabulary
+        return self.generator(decoder_output)
+    
+    def encode(self, src, src_mask):
+        return self.encoder(self.src_embed(src), src_mask)
+    
+    def decode(self, memory, src_mask, tgt, tgt_mask):
+        return self.decoder(self.tgt_embed(tgt), memory, src_mask, tgt_mask)
+
+class Generator(nn.Module):
+    """Define standard linear + softmax generation step"""
+    
+    def __init__(self, d_model, vocab_size):
+        super(Generator, self).__init__()
+        self.proj = nn.Linear(d_model, vocab_size)
+    
+    def forward(self, x):
+        """Project features to vocabulary size"""
+        # Debug output
+        if hasattr(self, 'proj'):
+            # Print shape information for debugging
+            # print(f"Generator input shape: {x.shape}, output features: {self.proj.out_features}")
+            pass
+        return self.proj(x)
 
 def make_model(src_vocab_size, tgt_vocab_size, N=6, d_model=512, d_ff=2048, h=8, dropout=0.1):
     """Construct a full transformer model"""
@@ -98,33 +136,9 @@ def train_epoch(model, dataloader, optimizer, criterion, device, tgt_vocab_size)
         # Check output dimensions match expected
         if output.size(-1) != tgt_vocab_size:
             print(f"ERROR: Output dimension {output.size(-1)} doesn't match target vocab size {tgt_vocab_size}")
-            # Adjust output if needed
-            if output.size(-1) < tgt_vocab_size:
-                # Pad output with zeros to match target vocab size
-                padding = torch.zeros(output.size(0), output.size(1), tgt_vocab_size - output.size(-1), 
-                                     device=output.device)
-                output = torch.cat([output, padding], dim=-1)
-                print(f"Padded output to shape: {output.shape}")
         
-        # Use the clamped target for loss calculation
-        try:
-            loss = criterion(output.contiguous().view(-1, output.size(-1)), target_flat)
-        except IndexError as e:
-            print(f"IndexError: {e}")
-            print(f"Output shape: {output.shape}, Target max: {target_flat.max().item()}")
-            # Find the problematic indices
-            for i in range(len(target_flat)):
-                if target_flat[i].item() >= output.size(-1):
-                    print(f"Problem at index {i}: value {target_flat[i].item()} >= {output.size(-1)}")
-                    if i < 10:  # Only print first few
-                        batch_pos = i // (tgt.size(1) - 1)
-                        seq_pos = i % (tgt.size(1) - 1)
-                        print(f"  From batch item {batch_pos}, sequence position {seq_pos}")
-                        if batch_pos < len(batch["target_text"]):
-                            print(f"  Text: {batch['target_text'][batch_pos]}")
-            # Try to recover by further clamping
-            target_flat = torch.clamp(target_flat, 0, output.size(-1) - 1)
-            loss = criterion(output.contiguous().view(-1, output.size(-1)), target_flat)
+        # Calculate loss
+        loss = criterion(output.contiguous().view(-1, output.size(-1)), target_flat)
         
         # Backward pass
         optimizer.zero_grad()
