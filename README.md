@@ -23,9 +23,9 @@ We've started a blog to document our progress and share insights about transform
 
 ## Methods
 
-Standard: Encoder-Decoder with multi-head attention. (Harvard)
-Variants: BERT (encoder-only), GPT (decoder-only).
-Customization: You can adjust N, hidden size, or attention heads, but the structure is usually fixed.
+- Standard: Encoder-Decoder with multi-head attention. (Harvard)
+- Variants: BERT (encoder-only), GPT (decoder-only).
+- Customization: You can adjust N, hidden size, or attention heads, but the structure is usually fixed.
 
 ## Attention Mechanism
 - How It Works: Attention calculates "scores" between words. For "Hello world", it checks how much "Hello" relates to "world" using their hidden states.
