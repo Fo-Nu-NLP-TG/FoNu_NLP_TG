@@ -1,0 +1,2 @@
+data/processed/clean_ewe_french.csv
+data/processed/ewe_french.csv
