@@ -5,7 +5,6 @@ data/processed/clean_*.csv filter=lfs diff=lfs merge=lfs -text
 data/processed/*_train.csv filter=lfs diff=lfs merge=lfs -text
 data/processed/*_val.csv filter=lfs diff=lfs merge=lfs -text
 data/processed/*_test.csv filter=lfs diff=lfs merge=lfs -text
-
 # Set Git LFS for other large file types
 *.bin filter=lfs diff=lfs merge=lfs -text
 *.pt filter=lfs diff=lfs merge=lfs -text
