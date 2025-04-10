@@ -10,11 +10,13 @@ SV(Semantics_Visualizer)/GoogleNews-vectors-negative300.bin
 # Datasets
 datasets/
 # Allow Kaggle_dataset scripts but ignore data files
+Kaggle_dataset/*.csv
 Kaggle_dataset/*.tsv
 Kaggle_dataset/*.json
 Kaggle_dataset/*.jsonl
 Kaggle_dataset/*.zip
 Kaggle_dataset/*.tar.gz
+*.csv
 *.tsv
 *.json
 *.jsonl
