@@ -5,12 +5,14 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 import argparse
+import copy
 
 # Add parent directory to path to import from data_processing
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from data_processing.load_tokenizers import load_sentencepiece_tokenizer, load_huggingface_tokenizer, create_translation_dataset
-from model_utils import Generator, Encoder, Decoder, EncoderDecoder, EncoderLayer, DecoderLayer, MultiHeadedAttention, PositionwiseFeedForward, PositionalEncoding, Embeddings
+from model_utils import Generator, Encoder, Decoder, EncoderLayer, DecoderLayer, MultiHeadedAttention, PositionwiseFeedForward, PositionalEncoding, Embeddings, subsequent_mask
+from encode_decode import EncodeDecode
 
 def make_model(src_vocab_size, tgt_vocab_size, N=6, d_model=512, d_ff=2048, h=8, dropout=0.1):
     """Construct a full transformer model"""
@@ -19,7 +21,7 @@ def make_model(src_vocab_size, tgt_vocab_size, N=6, d_model=512, d_ff=2048, h=8,
     ff = PositionwiseFeedForward(d_model, d_ff, dropout)
     position = PositionalEncoding(d_model, dropout)
     
-    model = EncoderDecoder(
+    model = EncodeDecode(
         Encoder(EncoderLayer(d_model, c(attn), c(ff), dropout), N),
         Decoder(DecoderLayer(d_model, c(attn), c(attn), c(ff), dropout), N),
         nn.Sequential(Embeddings(d_model, src_vocab_size), c(position)),
@@ -46,10 +48,16 @@ def train_epoch(model, dataloader, optimizer, criterion, device):
         # Create masks
         src_mask = (src != 0).unsqueeze(-2)
         tgt_mask = (tgt != 0).unsqueeze(-2)
-        tgt_mask = tgt_mask & subsequent_mask(tgt.size(-1)).to(device)
         
-        # Forward pass
-        output = model(src, tgt[:, :-1], src_mask, tgt_mask[:, :-1])
+        # Create subsequent mask for target sequence
+        tgt_len = tgt.size(1) - 1  # Adjust for the shifted target
+        subsequent_mask_tensor = subsequent_mask(tgt_len).to(device)
+        
+        # Apply both padding mask and subsequent mask
+        tgt_mask = tgt_mask[:, :, :-1] & subsequent_mask_tensor
+        
+        # Forward pass - shift target by 1 for teacher forcing
+        output = model(src, tgt[:, :-1], src_mask, tgt_mask)
         
         # Calculate loss
         loss = criterion(output.contiguous().view(-1, output.size(-1)), 
@@ -63,12 +71,6 @@ def train_epoch(model, dataloader, optimizer, criterion, device):
         total_loss += loss.item()
     
     return total_loss / len(dataloader)
-
-def subsequent_mask(size):
-    """Mask out subsequent positions for decoder self-attention"""
-    attn_shape = (1, size, size)
-    subsequent_mask = torch.triu(torch.ones(attn_shape), diagonal=1).type(torch.uint8)
-    return subsequent_mask == 0
 
 def main():
     parser = argparse.ArgumentParser(description="Train a transformer model for translation")

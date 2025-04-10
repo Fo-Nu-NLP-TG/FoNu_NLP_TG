@@ -69,7 +69,7 @@ def create_translation_dataset(src_tokenizer, tgt_tokenizer, data_path, src_lang
     Returns:
         A TranslationDataset object
     """
-    from transformer_dataset import TranslationDataset
+    from data_processing.transformer_dataset import TranslationDataset
     
     dataset = TranslationDataset(
         data_path=data_path,
