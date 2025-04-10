@@ -36,7 +36,7 @@ def make_model(src_vocab_size, tgt_vocab_size, N=6, d_model=512, d_ff=2048, h=8,
     
     return model
 
-def train_epoch(model, dataloader, optimizer, criterion, device):
+def train_epoch(model, dataloader, optimizer, criterion, device, tgt_vocab_size):
     """Train for one epoch"""
     model.train()
     total_loss = 0
@@ -202,10 +202,11 @@ def main():
     optimizer = optim.Adam(model.parameters(), lr=args.lr, betas=(0.9, 0.98), eps=1e-9)
     criterion = nn.CrossEntropyLoss(ignore_index=pad_token_id)  # Ignore padding index
     
-    # Train the model
+    # Training loop
     for epoch in range(args.epochs):
-        train_loss = train_epoch(model, train_dataloader, optimizer, criterion, device)
-        print(f"Epoch {epoch+1}/{args.epochs}, Train Loss: {train_loss:.4f}")
+        print(f"Epoch {epoch+1}/{args.epochs}")
+        train_loss = train_epoch(model, train_dataloader, optimizer, criterion, device, tgt_vocab_size)
+        print(f"Train Loss: {train_loss:.4f}")
         
         # Save checkpoint
         checkpoint_path = os.path.join(args.save_dir, f"transformer_{args.src_lang}_{args.tgt_lang}_epoch{epoch+1}.pt")
