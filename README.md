@@ -2,6 +2,10 @@
 
 FoNu_NLP_TG ("Fo Nu" means "speak" in Ewe, and TG stands for Togo) is a research project focused on experimenting, exploring, and fine-tuning transformers, with a special emphasis on applications for Togolese languages.
 
+## Project Documentation
+
+For a comprehensive explanation of the project structure and components, see the [Project Structure Documentation](PROJECT_STRUCTURE.md).
+
 ## Project Blog
 
 We've started a blog to document our progress and share insights about transformer models and NLP. The blog is available in multiple formats:

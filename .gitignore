@@ -77,3 +77,100 @@ ENV/
 *.swp
 *.swo
 
+# Additional heavy files
+# Word embeddings and large NLP resources
+embeddings/
+word_vectors/
+glove.*
+fasttext.*
+word2vec.*
+*.vec
+*.magnitude
+
+# Large data directories
+data/opus/extracted/
+data/kaggle/
+data/zindi/
+raw_data/
+processed_data/
+interim_data/
+
+# Cached files
+.cache/
+__pycache__/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Temporary files
+tmp/
+temp/
+.DS_Store
+Thumbs.db
+
+# Experiment tracking
+mlruns/
+.neptune/
+.aim/
+.dvc/
+.clearml/
+
+# Documentation build
+docs/_build/
+site/
+
+# Jupyter notebook checkpoints
+.ipynb_checkpoints/
+
+# Large media files
+*.mp4
+*.avi
+*.mov
+*.wav
+*.mp3
+*.flac
+*.ogg
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.bmp
+*.tiff
+*.ico
+*.pdf
+*.psd
+*.ai
+*.eps
+
+# Exclude large archives
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.tgz
+
+# Exclude database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Exclude compiled files
+*.dll
+*.exe
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.dylib
+*.out
+
+# Exclude backup files
+*~
+*.bak
+*.swp
+*.swo
+
