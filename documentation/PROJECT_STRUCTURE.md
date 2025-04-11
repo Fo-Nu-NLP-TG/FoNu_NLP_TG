@@ -12,6 +12,10 @@ This document provides a detailed explanation of the project structure, componen
   - [Kaggle_dataset](#kaggle_dataset)
   - [Tensorflow_Ytb_Channel](#tensorflow_ytb_channel)
   - [blog](#blog)
+  - [documentation](#documentation)
+  - [evaluation](#evaluation)
+  - [Research](#research)
+  - [tools](#tools)
 - [Data Flow](#data-flow)
 - [Development Workflow](#development-workflow)
 - [Deployment](#deployment)
@@ -177,6 +181,45 @@ Project blog documenting progress, insights, and findings.
 - `convert.py`: Script for converting blog posts to different formats
   - Converts Markdown to HTML for GitHub Pages
   - Prepares posts for Medium publication
+
+### documentation
+
+Project documentation files providing detailed information about various aspects of the project.
+
+#### Files:
+- `PROJECT_STRUCTURE.md`: This document - detailed explanation of project structure
+- `ewe_english_translation_approaches.md`: Documentation on translation approaches for Ewe-English
+- `DATASETS.md`: Information about datasets used in the project
+- `LARGE_FILES_HANDLING.md`: Guidelines for handling large files in the repository
+- `IMPORT_TROUBLESHOOTING.md`: Solutions for common import issues
+
+### evaluation
+
+Scripts and tools for evaluating model performance.
+
+#### Files:
+- `run_evaluation.py`: Comprehensive evaluation script for measuring model performance
+  - `evaluate_bleu`: Function to calculate BLEU scores
+  - `evaluate_examples`: Function to test model on example sentences
+- `simple_evaluation.py`: Simplified evaluation script for quick testing
+
+### Research
+
+Research papers, reports, and academic documentation.
+
+#### Files:
+- `ewe_english_transformer_research_updated.md`: Comprehensive research report on Ewe-English translation
+  - Analysis of transformer performance on Ewe-English translation
+  - Discussion of challenges and future directions
+
+### tools
+
+Utility scripts and tools for repository management.
+
+#### Files:
+- `bfg.jar`: BFG Repo-Cleaner for handling large files
+- `remove_large_files.sh`: Script for removing large files from repository history
+- `large-files.txt`: List of large files to be managed separately
 
 ## Data Flow
 

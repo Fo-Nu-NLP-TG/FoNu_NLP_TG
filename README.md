@@ -4,7 +4,7 @@ FoNu_NLP_TG ("Fo Nu" means "speak" in Ewe, and TG stands for Togo) is a research
 
 ## Project Documentation
 
-For a comprehensive explanation of the project structure and components, see the [Project Structure Documentation](PROJECT_STRUCTURE.md).
+For a comprehensive explanation of the project structure and components, see the [Project Structure Documentation](documentation/PROJECT_STRUCTURE.md).
 
 ## Project Blog
 
@@ -41,7 +41,7 @@ This project has a special focus on Ewe-English machine translation. We're explo
 - Implementing hybrid approaches combining neural and rule-based methods
 - Applying transfer learning from related languages
 
-See our [translation approaches document](ewe_english_translation_approaches.md) for detailed information.
+See our [translation approaches document](documentation/ewe_english_translation_approaches.md) for detailed information.
 
 ## Installation
 
@@ -76,15 +76,24 @@ python -m spacy download en_core_web_sm
 - `SV(Semantics_Visualizer)/`: Tools for visualizing word embeddings
   - `SV.py`: Local implementation of word embedding visualization
   - `kaggle_semantics_visualizer.ipynb`: Kaggle notebook implementation that can be run in the cloud
-  - Link to Kaggle notebook: [https://www.kaggle.com/kuroio/semantics-visualizer](https://www.kaggle.com/kuroio/semantics-visualizer)
 - `blog/`: Project blog documenting our progress and insights
   - `index.md`: Main blog index page
   - `first_post.md`: Introduction to the project and transformer models
   - `images/`: Directory containing images for blog posts
 - `data_processing/`: Tools for data preparation and tokenization
   - `tokenizer_trainer.py`: Script for training tokenizers on Ewe and English text
-  - `data_preprocessing_guide.md`: Guide for preprocessing text data
   - `dataset.py`: Dataset classes for loading and batching data
+- `documentation/`: Project documentation files
+  - `PROJECT_STRUCTURE.md`: Detailed explanation of project structure
+  - `ewe_english_translation_approaches.md`: Documentation on translation approaches
+  - `DATASETS.md`: Information about datasets used in the project
+- `evaluation/`: Scripts for evaluating model performance
+  - `run_evaluation.py`: Comprehensive evaluation script
+  - `simple_evaluation.py`: Simplified evaluation for quick testing
+- `Research/`: Research papers and reports
+  - `ewe_english_transformer_research_updated.md`: Research report on Ewe-English translation
+- `Model&Training_Visualizations/`: Visualizations of model architecture and training
+- `tools/`: Utility scripts and tools for repository management
 
 ## Usage Examples
 

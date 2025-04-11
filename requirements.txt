@@ -3,27 +3,50 @@ torch>=2.2.0
 torchtext>=0.16.0
 transformers>=4.30.0
 datasets>=2.14.0
+tensorflow>=2.12.0  # For TensorFlow implementations
 
 # NLP tools
 sentencepiece>=0.1.99
 spacy>=3.6.0
 sacrebleu>=2.3.0
 nltk>=3.8.1
+fasttext>=0.9.2  # For word embeddings
+gensim>=4.3.0  # For word2vec and other embeddings
 
 # Data processing
 pandas>=1.5.0
 numpy>=1.24.0
 scikit-learn>=1.2.0
+dask>=2023.3.0  # For handling large datasets
 
 # Visualization
 matplotlib>=3.5.0
 altair>=5.0.0
 seaborn>=0.12.0
+plotly>=5.14.0  # Interactive visualizations
 
 # Notebook and development
 jupyter>=1.0.0
 ipywidgets>=8.0.0
 tqdm>=4.65.0
+pytest>=7.3.1  # For testing
 
 # Web and documentation
 markdown>=3.4.0
+pandoc>=2.3  # For document conversion
+weasyprint>=59.0  # For PDF generation
+mkdocs>=1.4.3  # For documentation site generation
+mkdocs-material>=9.1.15  # Theme for documentation
+
+# Evaluation and metrics
+evaluate>=0.4.0  # Hugging Face evaluate library
+rouge>=1.0.1  # For text summarization metrics
+meteor>=0.9.0  # For translation evaluation
+
+# GitHub Pages and blog
+ghp-import>=2.1.0  # For publishing to GitHub Pages
+
+# Utilities
+pyyaml>=6.0  # For configuration files
+requests>=2.31.0  # For API requests
+beautifulsoup4>=4.12.2  # For web scraping

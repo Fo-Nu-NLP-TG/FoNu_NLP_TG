@@ -1,0 +1,92 @@
+site_name: FoNu NLP TG
+site_description: Transformer-based translation model between Ewe and English languages
+site_author: FoNu NLP Team
+repo_url: https://github.com/Lemniscate-world/FoNu_NLP_TG/
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    primary: indigo
+    accent: indigo
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.highlight
+    - content.code.copy
+  icon:
+    repo: fontawesome/brands/github
+
+markdown_extensions:
+  - admonition
+  - codehilite
+  - footnotes
+  - meta
+  - toc:
+      permalink: true
+  - pymdownx.arithmatex
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.critic
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          selection:
+            docstring_style: google
+          rendering:
+            show_source: true
+  - git-revision-date-localized:
+      type: date
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Installation: getting-started/installation.md
+    - Quick Start: getting-started/quick-start.md
+  - Documentation:
+    - Project Structure: documentation/project-structure.md
+    - Datasets: documentation/datasets.md
+    - Translation Approaches: documentation/translation-approaches.md
+    - Large Files Handling: documentation/large-files-handling.md
+    - Import Troubleshooting: documentation/import-troubleshooting.md
+  - Model:
+    - Transformer Architecture: model/transformer-architecture.md
+    - Training: model/training.md
+    - Evaluation: model/evaluation.md
+    - Inference: model/inference.md
+  - Research:
+    - Ewe-English Translation: research/ewe-english-translation.md
+  - Blog:
+    - Introduction: blog/introduction.md
+  - Contributing: contributing.md
+  - API Reference: api-reference.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/Lemniscate-world/FoNu_NLP_TG/
+  version:
+    provider: mike

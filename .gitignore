@@ -51,6 +51,12 @@ wandb/
 tensorboard/
 *.log
 
+# Evaluation results
+evaluation/results/
+evaluation/*.txt
+evaluation/*.json
+evaluation/*.csv
+
 # Python
 __pycache__/
 *.py[cod]
