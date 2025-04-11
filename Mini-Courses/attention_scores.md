@@ -7,12 +7,11 @@ Attention scores are at the heart of the attention mechanism, the key innovation
 ## Table of Contents
 
 1. [What is Attention?](#what-is-attention)
-2. [Attention Explained Simply](#attention-explained-simply)
-3. [Calculating Attention Scores](#calculating-attention-scores)
-4. [Visualizing Attention Scores](#visualizing-attention-scores)
-5. [Multi-Head Attention](#multi-head-attention)
-6. [Impact of Attention Scores](#impact-of-attention-scores)
-7. [Practical Exercises](#practical-exercises)
+2. [Calculating Attention Scores](#calculating-attention-scores)
+3. [Visualizing Attention Scores](#visualizing-attention-scores)
+4. [Multi-Head Attention](#multi-head-attention)
+5. [Impact of Attention Scores](#impact-of-attention-scores)
+6. [Practical Exercises](#practical-exercises)
 
 ## What is Attention?
 
@@ -22,133 +21,6 @@ In Transformer models, attention enables:
 - Capturing long-range dependencies between words
 - Processing sequences in parallel (unlike RNNs)
 - Creating rich contextual representations for each word
-
-## Attention Explained Simply
-
-Let's understand attention with a simple, intuitive explanation without any complex math.
-
-### The Basic Idea: Weighted Connections
-
-```mermaid
-graph LR
-    A[The] --> |0.1| D[is]
-    B[cat] --> |0.8| D
-    C[tail] --> |0.1| D
-    style B fill:#f96,stroke:#333,stroke-width:2px
-    style D fill:#bbf,stroke:#333,stroke-width:2px
-```
-
-Imagine you're reading the sentence: "The cat, which has a long tail, is sleeping on the mat."
-
-When you reach the word "is," you need to connect it back to "cat" (not "tail") to understand the sentence correctly. Attention helps the model make these connections.
-
-### Step-by-Step Process
-
-1. **For each word, create three versions:**
-   - A **question** version (Query): "What am I looking for?"
-   - A **label** version (Key): "This is what I contain"
-   - A **content** version (Value): "This is my information"
-
-   ```mermaid
-   graph LR
-       A[Word: "cat"] --> B[Query: "I need a verb"]
-       A --> C[Key: "I'm a subject"]
-       A --> D[Value: "feline animal"]
-       style A fill:#f9f,stroke:#333,stroke-width:2px
-       style B fill:#bbf,stroke:#333,stroke-width:2px
-       style C fill:#bfb,stroke:#333,stroke-width:2px
-       style D fill:#fbf,stroke:#333,stroke-width:2px
-   ```
-
-2. **Ask questions and get scores:**
-   - For each word, take its question (Query) and compare it with every word's label (Key)
-   - Words that match well get high scores, others get low scores
-   - Example: The word "is" might ask "I need to find my subject" and the word "cat" has a label that says "I'm a subject"
-
-   ```mermaid
-   graph LR
-       A["Query from 'is': <br>I need a subject"] --> |Compare| B["Key from 'cat': <br>I'm a subject"]
-       A --> |Compare| C["Key from 'tail': <br>I'm an object"]
-       B --> D["Score: 0.8 <br>(high match)"]
-       C --> E["Score: 0.1 <br>(low match)"]
-       style A fill:#bbf,stroke:#333,stroke-width:2px
-       style D fill:#bfb,stroke:#333,stroke-width:2px
-       style E fill:#fbb,stroke:#333,stroke-width:2px
-   ```
-
-3. **Convert scores to percentages:**
-   - Turn all scores into percentages that add up to 100%
-   - These percentages are the "attention weights"
-   - Example: "is" might give 80% attention to "cat", 5% to "tail", 15% to other words
-
-   ```mermaid
-   graph TD
-       A[Raw Scores] --> B[Apply Softmax]
-       B --> C[Attention Weights]
-       C --> D["cat: 80%"]
-       C --> E["tail: 5%"]
-       C --> F["other words: 15%"]
-       style B fill:#bbf,stroke:#333,stroke-width:2px
-       style C fill:#bfb,stroke:#333,stroke-width:2px
-   ```
-
-4. **Collect information based on percentages:**
-   - Take a percentage of each word's content (Value) based on the attention weights
-   - Add all these pieces together to create a new representation for the current word
-   - This new representation contains information from all relevant words, weighted by importance
-
-   ```mermaid
-   graph LR
-       A["Value from 'cat'"] --> |80%| D["New representation <br>for 'is'"]
-       B["Value from 'tail'"] --> |5%| D
-       C["Values from <br>other words"] --> |15%| D
-       style D fill:#bbf,stroke:#333,stroke-width:2px
-   ```
-
-
-### Real-World Analogy: Research Paper
-
-Imagine you're writing a research paper:
-
-1. You have a **specific question** (Query) you're trying to answer
-2. You scan through **book titles and abstracts** (Keys) to find relevant sources
-3. You assign **importance levels** to each source (Attention Weights)
-4. You extract **information** (Values) from each source according to its importance
-5. You **combine** this information to write your paper
-
-### Why This Matters
-
-This simple mechanism allows Transformer models to:
-
-- Connect related words even if they're far apart
-- Understand complex relationships in language
-- Focus on what's important and ignore what's not
-- Learn different types of relationships (grammatical, semantic, etc.)
-
-```mermaid
-graph LR
-    A[The] --> B[cat]
-    B --> C[which]
-    C --> D[has]
-    D --> E[a]
-    E --> F[long]
-    F --> G[tail]
-    G --> H[is]
-    H --> I[sleeping]
-    I --> J[on]
-    J --> K[the]
-    K --> L[mat]
-
-    H -->|Strong attention| B
-    I -->|Strong attention| H
-    J -->|Strong attention| I
-
-    style B fill:#f96,stroke:#333,stroke-width:2px
-    style H fill:#bbf,stroke:#333,stroke-width:2px
-    style I fill:#bbf,stroke:#333,stroke-width:2px
-```
-
-In the next section, we'll look at the mathematical details of how attention scores are calculated.
 
 ## Calculating Attention Scores
 
