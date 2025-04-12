@@ -8,6 +8,7 @@ This document provides visual representations of the data preprocessing workflow
 - [3. Tokenization Approaches](#3-tokenization-approaches)
 - [4. Data Augmentation Techniques](#4-data-augmentation-techniques)
 - [5. Low-Resource Language Strategies](#5-low-resource-language-strategies)
+- [6. Stoplist Generation and Application](#6-stoplist-generation-and-application)
 
 ## 1. Complete Preprocessing Pipeline
 
@@ -16,8 +17,9 @@ flowchart TD
     A[Raw Parallel Data] --> B[Data Cleaning]
     B --> C[Length Filtering]
     C --> D[Duplicate Removal]
-    D --> E[Tokenization]
-    E --> F[Data Augmentation]
+    D --> E1[Stoplist Generation]
+    E1 --> E2[Tokenization]
+    E2 --> F[Data Augmentation]
     F --> G[Train/Val/Test Split]
     G --> H[Final Processed Dataset]
     
@@ -35,7 +37,8 @@ flowchart TD
     C --> D[Special Character Handling]
     D --> E[Language Detection]
     E --> F[Empty Row Removal]
-    F --> G[Clean Text]
+    F --> G[Stopword Filtering]
+    G --> H[Clean Text]
 ```
 
 ## 3. Tokenization Approaches
@@ -115,4 +118,69 @@ flowchart TD
     C --> D[Add Language Tags]
     D --> E[Train Multilingual Model]
     E --> F[Fine-tune on Ewe-English]
+```
+
+## 6. Stoplist Generation and Application
+
+```mermaid
+flowchart TD
+    A[Corpus Analysis] --> B[Frequency Calculation]
+    B --> C[Statistical Filtering]
+    C --> D[Language-Specific Rules]
+    D --> E[Manual Curation]
+    E --> F[Final Stoplist]
+    
+    G[Raw Text] --> H[Tokenization]
+    H --> I[Stoplist Application]
+    F --> I
+    I --> J[Filtered Text]
+```
+
+### Stoplist Generation Process
+
+```mermaid
+sequenceDiagram
+    participant C as Corpus
+    participant F as Frequency Analyzer
+    participant S as Stoplist Generator
+    participant A as Application
+    
+    C->>F: Text corpus
+    F->>F: Calculate word frequencies
+    F->>S: Word frequency distribution
+    S->>S: Apply statistical thresholds
+    S->>S: Apply language-specific rules
+    S->>A: Generated stoplist
+    A->>A: Filter text using stoplist
+```
+
+### Stoplist Comparison: Ewe vs. English
+
+```mermaid
+graph LR
+    A[Stoplist Generation] --> B[English Stoplist]
+    A --> C[Ewe Stoplist]
+    
+    B --> D[Common English stopwords:\nthe, a, an, of, in, etc.]
+    C --> E[Ewe-specific stopwords:\nle, na, ɖe, la, etc.]
+    
+    D --> F[Application in Preprocessing]
+    E --> F
+```
+
+### Impact of Stoplist on Translation Quality
+
+```mermaid
+graph TD
+    A[Translation Process] --> B{Use Stoplist?}
+    B -->|No| C[Standard Translation]
+    B -->|Yes| D[Stoplist-enhanced Translation]
+    
+    C --> E[Standard Quality Metrics]
+    D --> F[Improved Quality Metrics]
+    
+    E --> G[Comparison]
+    F --> G
+    
+    G --> H[Analysis of Improvements]
 ```
