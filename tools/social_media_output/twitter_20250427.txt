@@ -1,0 +1,1 @@
+Week 17 update on #FoNuNLPTG: Started development of Kolmogorov-Machine for neural network distribution analysis. Added Transformew2 as submodule (with some integration issues to fix). Expanded educational content on layer normalization. #NLP #MachineLearning

@@ -4,6 +4,8 @@ Welcome to the official blog for the FoNu_NLP_TG project! This blog documents ou
 
 ## Latest Posts
 
+- [Weekly Update: Week 17 - 2025-04-21 to 2025-04-27](updates/week_17_20250427.md) - Latest progress with Kolmogorov-Machine and educational content.
+- [Weekly Update: Week 1 - 2023-10-01 to 2023-10-07](updates/week_1_sample.md) - Weekly progress update.
 - [Exploring Transformers: The Journey Begins](first_post.md) - An introduction to our project, goals, and initial work with transformer models.
 - [Tokenization for Low-Resource Languages](tokenization.md) - Coming soon: Our approach to tokenization for Ewe and other low-resource languages.
 - [Translation Approaches for Ewe-English](translation_approaches.md) - Coming soon: Detailed exploration of our translation strategies.

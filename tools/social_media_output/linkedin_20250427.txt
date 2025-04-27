@@ -1,0 +1,7 @@
+Week 17 Update on FoNu NLP TG Project:
+
+This week we've made progress on our Kolmogorov-Machine module - a neural network distributions analyzer and visualizer designed to work across PyTorch and TensorFlow. The core structure is in place, though many components are still in early development. We've also added Transformew2 as a git submodule and created educational content covering layer normalization and neural network fundamentals.
+
+We're facing some integration challenges with our submodules and need more testing for the framework adapters. Next week, we'll focus on fixing these issues, completing key analyzers, and adding practical examples to our educational content.
+
+#NLP #MachineLearning #EweLanguage #WorkInProgress #DeepLearning #TransformerModels

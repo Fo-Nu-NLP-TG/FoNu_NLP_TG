@@ -1,0 +1,5 @@
+Developing Kolmogorov-Machine: A Neural Network Distribution Analyzer
+
+We're working on Kolmogorov-Machine, a tool for analyzing and visualizing distributions in neural networks. While still in early development, it aims to help identify specialized neurons and detect distribution patterns across frameworks. Follow our progress as we build this tool.
+
+Read the full update on our blog: [link]
